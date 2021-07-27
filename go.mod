@@ -1,4 +1,4 @@
-module github.com/WeBankPartners/go-common-lib
+module github.com/WeBankPartners/go-common-lib/v1
 
 go 1.15
 

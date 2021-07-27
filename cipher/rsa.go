@@ -7,12 +7,11 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"strings"
 )
 
-func DecryptRsa(inputString, rsaPemPath string) (string, error) {
+func DecryptRsa(inputString, rsaPemContent string) (string, error) {
 	if !strings.HasPrefix(strings.ToLower(inputString), "rsa@") {
 		return inputString, nil
 	}
@@ -23,12 +22,7 @@ func DecryptRsa(inputString, rsaPemPath string) (string, error) {
 		err = fmt.Errorf("Input string format to base64 fail,%s ", err.Error())
 		return inputString, err
 	}
-	fileContent, err := ioutil.ReadFile(rsaPemPath)
-	if err != nil {
-		err = fmt.Errorf("Read file %s fail,%s ", rsaPemPath, err.Error())
-		return result, err
-	}
-	block, _ := pem.Decode(fileContent)
+	block, _ := pem.Decode([]byte(rsaPemContent))
 	privateKeyInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		err = fmt.Errorf("Parse private key fail,%s ", err.Error())
