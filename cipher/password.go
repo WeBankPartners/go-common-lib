@@ -71,7 +71,6 @@ func AesDecode(key string, encryptData string) (password string, err error) {
 	blockMode := cipher.NewCBCDecrypter(block, bytesRawKey[:blockSize])
 	origData := make([]byte, len(bytesRawData))
 	blockMode.CryptBlocks(origData, bytesRawData)
-
 	origData = PKCS7UnPadding(origData)
 	if len(origData) == 0 {
 		err = fmt.Errorf("password wrong")
