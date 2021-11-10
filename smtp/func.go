@@ -21,6 +21,13 @@ func (ms *MailSender) Init() error {
 	if !verifyMailAddress(ms.SenderMail) {
 		return fmt.Errorf("Sender mail:%s validate fail ", ms.SenderMail)
 	}
+	if !strings.Contains(ms.AuthServer, ":") {
+		if ms.SSL {
+			ms.AuthServer = ms.AuthServer + ":465"
+		} else {
+			ms.AuthServer = ms.AuthServer + ":25"
+		}
+	}
 	ms.Auth = PlainAuth("", ms.SenderMail, ms.AuthPassword, ms.AuthServer)
 	return nil
 }
