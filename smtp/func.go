@@ -18,6 +18,9 @@ type MailSender struct {
 }
 
 func (ms *MailSender) Init() error {
+	if ms.AuthServer == "" || ms.SenderMail == "" {
+		return fmt.Errorf("Mail server and sender can not empty ")
+	}
 	if !verifyMailAddress(ms.SenderMail) {
 		return fmt.Errorf("Sender mail:%s validate fail ", ms.SenderMail)
 	}
