@@ -1,14 +1,12 @@
 package file_server
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"github.com/WeBankPartners/go-common-lib/guid"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"io"
 	"io/ioutil"
-	"os"
 )
 
 type MinioServer struct {
@@ -20,18 +18,16 @@ type MinioServer struct {
 }
 
 type MinioUploadParam struct {
-	Ctx        context.Context `json:"ctx"`
-	Bucket     string          `json:"bucket"`
-	ObjectName string          `json:"object_name"`
-	Reader     io.Reader       `json:"reader"`
-	ObjectSize int64           `json:"object_size"`
+	Ctx         context.Context `json:"ctx"`
+	Bucket      string          `json:"bucket"`
+	ObjectName  string          `json:"object_name"`
+	FileContent []byte          `json:"file_content"`
 }
 
 type MinioDownloadParam struct {
 	Ctx        context.Context `json:"ctx"`
 	Bucket     string          `json:"bucket"`
 	ObjectName string          `json:"object_name"`
-	FilePath   string          `json:"file_path"`
 }
 
 func (m *MinioServer) Init() error {
@@ -56,7 +52,8 @@ func (m *MinioServer) Upload(param MinioUploadParam) error {
 			return fmt.Errorf("Bucket:%s is not exist ", param.Bucket)
 		}
 	}
-	info, putErr := m.Client.PutObject(param.Ctx, param.Bucket, param.ObjectName, param.Reader, param.ObjectSize, minio.PutObjectOptions{})
+
+	info, putErr := m.Client.PutObject(param.Ctx, param.Bucket, param.ObjectName, bytes.NewReader(param.FileContent), int64(len(param.FileContent)), minio.PutObjectOptions{})
 	if putErr != nil {
 		return fmt.Errorf("Upload minio file fail,%s ", putErr.Error())
 	}
@@ -65,19 +62,14 @@ func (m *MinioServer) Upload(param MinioUploadParam) error {
 }
 
 func (m *MinioServer) Download(param MinioDownloadParam) (result []byte, err error) {
-	tmpPath := param.FilePath
-	if tmpPath == "" {
-		tmpPath = fmt.Sprintf("/tmp/tmp_s3_%s", guid.CreateGuid())
-	}
-	err = m.Client.FGetObject(param.Ctx, param.Bucket, param.ObjectName, tmpPath, minio.GetObjectOptions{})
-	if err != nil {
-		os.Remove(tmpPath)
-		err = fmt.Errorf("Download minio file fail,%s ", err.Error())
+	obj, getErr := m.Client.GetObject(param.Ctx, param.Bucket, param.ObjectName, minio.GetObjectOptions{})
+	if getErr != nil {
+		err = fmt.Errorf("Download file fail,%s ", getErr.Error())
 		return result, err
 	}
-	if param.FilePath == "" {
-		result, _ = ioutil.ReadFile(tmpPath)
-		os.Remove(tmpPath)
+	result, err = ioutil.ReadAll(obj)
+	if err != nil {
+		err = fmt.Errorf("Read file content fail,%s ", err.Error())
 	}
 	return result, err
 }
