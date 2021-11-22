@@ -2,3 +2,4 @@
 .idea
 .editorconfig
 .vscode
+*_test.go
