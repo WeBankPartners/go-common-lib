@@ -75,6 +75,10 @@ func (h *HttpSourceAuth) Auth() error {
 	return nil
 }
 
+func (h *HttpSourceAuth) GetAppId() string {
+	return h.AppId
+}
+
 func SetRequestSourceAuth(httpRequest *http.Request, appId string, privateKey []byte) error {
 	httpRequest.Header.Set(AppIdHeaderName, appId)
 	b, _ := ioutil.ReadAll(httpRequest.Body)
