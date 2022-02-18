@@ -24,30 +24,6 @@ type HttpSourceAuth struct {
 	LegalSourcePubKeyMap map[string]string `json:"legal_source_pub_key_map"`
 }
 
-func (h *HttpSourceAuth) InitGinRequest(c *gin.Context, pubKeyMap map[string]string) error {
-	h.SourceAuth = c.GetHeader(SourceAuthHeaderName)
-	h.AppId = c.GetHeader(AppIdHeaderName)
-	h.RequestURI = c.Request.RequestURI
-	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
-	c.Request.Body.Close()
-	c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
-	h.RequestBodyString = string(bodyBytes)
-	h.LegalSourcePubKeyMap = pubKeyMap
-	return h.validateParam()
-}
-
-func (h *HttpSourceAuth) InitHttpRequest(httpRequest *http.Request, pubKeyMap map[string]string) error {
-	h.SourceAuth = httpRequest.Header.Get(SourceAuthHeaderName)
-	h.AppId = httpRequest.Header.Get(AppIdHeaderName)
-	h.RequestURI = httpRequest.URL.RequestURI()
-	bodyBytes, _ := ioutil.ReadAll(httpRequest.Body)
-	httpRequest.Body.Close()
-	httpRequest.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
-	h.RequestBodyString = string(bodyBytes)
-	h.LegalSourcePubKeyMap = pubKeyMap
-	return h.validateParam()
-}
-
 func (h *HttpSourceAuth) validateParam() error {
 	if h.SourceAuth == "" || h.AppId == "" {
 		return fmt.Errorf("Http header Source-Auth and App-Id can not empty ")
@@ -58,7 +34,7 @@ func (h *HttpSourceAuth) validateParam() error {
 	return nil
 }
 
-func (h *HttpSourceAuth) Auth() error {
+func (h *HttpSourceAuth) auth() error {
 	var pubKeyString string
 	if v, b := h.LegalSourcePubKeyMap[h.AppId]; b {
 		pubKeyString = v
@@ -77,6 +53,38 @@ func (h *HttpSourceAuth) Auth() error {
 
 func (h *HttpSourceAuth) GetAppId() string {
 	return h.AppId
+}
+
+func VerifySourceWithGin(c *gin.Context, pubKeyMap map[string]string) (appId string, err error) {
+	httpSourceAuth := HttpSourceAuth{SourceAuth: c.GetHeader(SourceAuthHeaderName), AppId: c.GetHeader(AppIdHeaderName), RequestURI: c.Request.RequestURI}
+	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
+	c.Request.Body.Close()
+	c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	httpSourceAuth.RequestBodyString = string(bodyBytes)
+	httpSourceAuth.LegalSourcePubKeyMap = pubKeyMap
+	err = httpSourceAuth.validateParam()
+	if err != nil {
+		return
+	}
+	appId = httpSourceAuth.AppId
+	err = httpSourceAuth.auth()
+	return
+}
+
+func VerifySourceWithHttp(httpRequest *http.Request, pubKeyMap map[string]string) (appId string, err error) {
+	httpSourceAuth := HttpSourceAuth{SourceAuth: httpRequest.Header.Get(SourceAuthHeaderName), AppId: httpRequest.Header.Get(AppIdHeaderName), RequestURI: httpRequest.URL.RequestURI()}
+	bodyBytes, _ := ioutil.ReadAll(httpRequest.Body)
+	httpRequest.Body.Close()
+	httpRequest.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	httpSourceAuth.RequestBodyString = string(bodyBytes)
+	httpSourceAuth.LegalSourcePubKeyMap = pubKeyMap
+	err = httpSourceAuth.validateParam()
+	if err != nil {
+		return
+	}
+	appId = httpSourceAuth.AppId
+	err = httpSourceAuth.auth()
+	return
 }
 
 func SetRequestSourceAuth(httpRequest *http.Request, appId string, privateKey []byte) error {

@@ -63,7 +63,7 @@ func InitArchiveZapLogger(config LogConfig) (zapLogger *zap.Logger) {
 			if len(trimPath) > 40 {
 				trimPath = trimPath[len(trimPath)-40:]
 			}
-			enc.AppendString("[] [" + trimPath + "] - ")
+			enc.AppendString("[] [" + trimPath + "]")
 		}
 		zCore := zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), zapcore.NewMultiWriteSyncer(zapcore.AddSync(&hook)), zapLevel)
 		zapLogger = zap.New(zCore, zap.AddCaller(), zap.Development())
