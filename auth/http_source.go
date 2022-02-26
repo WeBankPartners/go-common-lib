@@ -57,9 +57,12 @@ func (h *HttpSourceAuth) GetAppId() string {
 
 func VerifySourceWithGin(c *gin.Context, pubKeyMap map[string]string) (appId string, err error) {
 	httpSourceAuth := HttpSourceAuth{SourceAuth: c.GetHeader(SourceAuthHeaderName), AppId: c.GetHeader(AppIdHeaderName), RequestURI: c.Request.RequestURI}
-	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
-	c.Request.Body.Close()
-	c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	var bodyBytes []byte
+	if c.Request.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+		c.Request.Body.Close()
+		c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	}
 	httpSourceAuth.RequestBodyString = string(bodyBytes)
 	httpSourceAuth.LegalSourcePubKeyMap = pubKeyMap
 	err = httpSourceAuth.validateParam()
@@ -73,9 +76,12 @@ func VerifySourceWithGin(c *gin.Context, pubKeyMap map[string]string) (appId str
 
 func VerifySourceWithHttp(httpRequest *http.Request, pubKeyMap map[string]string) (appId string, err error) {
 	httpSourceAuth := HttpSourceAuth{SourceAuth: httpRequest.Header.Get(SourceAuthHeaderName), AppId: httpRequest.Header.Get(AppIdHeaderName), RequestURI: httpRequest.URL.RequestURI()}
-	bodyBytes, _ := ioutil.ReadAll(httpRequest.Body)
-	httpRequest.Body.Close()
-	httpRequest.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	var bodyBytes []byte
+	if httpRequest.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(httpRequest.Body)
+		httpRequest.Body.Close()
+		httpRequest.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	}
 	httpSourceAuth.RequestBodyString = string(bodyBytes)
 	httpSourceAuth.LegalSourcePubKeyMap = pubKeyMap
 	err = httpSourceAuth.validateParam()
@@ -89,10 +95,13 @@ func VerifySourceWithHttp(httpRequest *http.Request, pubKeyMap map[string]string
 
 func SetRequestSourceAuth(httpRequest *http.Request, appId string, privateKey []byte) error {
 	httpRequest.Header.Set(AppIdHeaderName, appId)
-	b, _ := ioutil.ReadAll(httpRequest.Body)
-	httpRequest.Body.Close()
-	httpRequest.Body = ioutil.NopCloser(bytes.NewReader(b))
-	enBytes, enErr := cipher.RSAEncryptByPrivate([]byte(hashSourceAuthHeader(appId, httpRequest.URL.RequestURI(), string(b))), privateKey)
+	var bodyBytes []byte
+	if httpRequest.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(httpRequest.Body)
+		httpRequest.Body.Close()
+		httpRequest.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	}
+	enBytes, enErr := cipher.RSAEncryptByPrivate([]byte(hashSourceAuthHeader(appId, httpRequest.URL.RequestURI(), string(bodyBytes))), privateKey)
 	if enErr != nil {
 		return fmt.Errorf("Rsa encrypt error:%s \n", enErr.Error())
 	}
