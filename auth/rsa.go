@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"math/big"
@@ -130,16 +131,13 @@ func RSAEncryptByPrivate(orgidata []byte, privatekey string) ([]byte, error) {
 }
 
 func RSADecryptByPublic(encryptedData []byte, publicKey string) ([]byte, error) {
-	decodeBytes, err := base64.StdEncoding.DecodeString(publicKey)
-	if err != nil {
-		return nil, fmt.Errorf("RSASign public key is bad")
+	block, _ := pem.Decode([]byte(publicKey))
+	if block == nil {
+		return nil, fmt.Errorf("decode pem public fail")
 	}
-
-	publicInterface, err := x509.ParsePKCS1PublicKey(decodeBytes)
+	publicInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
-
-	return PublicDecrypt(publicInterface, encryptedData)
-
+	return PublicDecrypt(publicInterface.(*rsa.PublicKey), encryptedData)
 }
