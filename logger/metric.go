@@ -60,7 +60,7 @@ func (te *metricEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) 
 func InitMetricZapLogger(config LogConfig) (zapLogger *zap.Logger) {
 	config.LogLevel = strings.ToLower(config.LogLevel)
 	zapLevel := zap.NewAtomicLevel()
-	zapLevel.SetLevel(zapcore.Level(1))
+	zapLevel.SetLevel(zapcore.Level(0))
 	hook := lumberjack.Logger{
 		Filename:   config.FilePath,
 		MaxSize:    config.ArchiveMaxSize,
