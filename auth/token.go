@@ -91,12 +91,12 @@ func (c AuthManageClaims) Valid() error {
 	now := time.Now().UTC()
 	exp := time.Unix(c.ExpiresAt, 0).UTC()
 	if now.After(exp) {
-		return ErrInvalidClaim
+		return fmt.Errorf("token expired")
 	}
 
 	iat := time.Unix(c.IssuedAt, 0).UTC()
 	if now.Before(iat) {
-		return ErrInvalidClaim
+		return fmt.Errorf("token not issue yet")
 	}
 	return nil
 }
