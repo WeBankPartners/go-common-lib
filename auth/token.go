@@ -3,7 +3,6 @@ package auth
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"strings"
@@ -11,8 +10,7 @@ import (
 )
 
 var (
-	ErrInvalidClaim = errors.New("invalid claim")
-	JwtTokenPrefix  = "Bearer "
+	JwtTokenPrefix = "Bearer "
 )
 
 type AuthDidClaims struct {
@@ -28,12 +26,12 @@ func (c AuthDidClaims) Valid() error {
 	now := time.Now().UTC()
 	exp := time.Unix(c.ExpiresAt, 0).UTC()
 	if now.After(exp) {
-		return ErrInvalidClaim
+		return fmt.Errorf("token expired")
 	}
 
 	iat := time.Unix(c.IssuedAt, 0).UTC()
 	if now.Before(iat) {
-		return ErrInvalidClaim
+		return fmt.Errorf("token not issue yet")
 	}
 	return nil
 }
