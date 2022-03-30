@@ -128,3 +128,55 @@ func VerifyManageToken(tokenString string, jwtPublicKeyBytes []byte) (roles []st
 	authorities = claim.Authorities
 	return
 }
+
+type AuthClaims struct {
+	Subject     string   `json:"sub"`
+	IssuedAt    int64    `json:"iat"`
+	ExpiresAt   int64    `json:"exp"`
+	Type        string   `json:"type"`
+	LoginType   string   `json:"loginType"`
+	Account     string   `json:"account,omitempty"`
+	Roles       []string `json:"roles"`
+	Authorities []string `json:"authorities"`
+}
+
+func (c AuthClaims) Valid() error {
+	now := time.Now().UTC()
+	exp := time.Unix(c.ExpiresAt, 0).UTC()
+	if now.After(exp) {
+		return fmt.Errorf("token expired")
+	}
+
+	iat := time.Unix(c.IssuedAt, 0).UTC()
+	if now.Before(iat) {
+		return fmt.Errorf("token not issue yet")
+	}
+	return nil
+}
+
+func GetManageTokenData(tokenString string, jwtPublicKeyBytes []byte) (authClaim *AuthClaims, err error) {
+	if strings.HasPrefix(tokenString, JwtTokenPrefix) {
+		tokenString = tokenString[7:]
+	}
+	// parse rsa public key
+	parsedKey, parsePublicKeyErr := jwt.ParseRSAPublicKeyFromPEM(jwtPublicKeyBytes)
+	if parsePublicKeyErr != nil {
+		err = fmt.Errorf("parse jwt public key fail,%s ", parsePublicKeyErr.Error())
+		return
+	}
+	// parse Claim
+	jwtToken, parseClaimErr := jwt.ParseWithClaims(tokenString, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return parsedKey, nil
+	})
+	if parseClaimErr != nil {
+		err = fmt.Errorf("parse jwt claim fail,%s ", parseClaimErr.Error())
+		return
+	}
+	claim, ok := jwtToken.Claims.(*AuthClaims)
+	if !ok || !jwtToken.Valid {
+		err = fmt.Errorf("jwt token invalid ")
+		return
+	}
+	authClaim = claim
+	return
+}
