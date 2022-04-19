@@ -135,9 +135,11 @@ type AuthClaims struct {
 	ExpiresAt   int64    `json:"exp"`
 	Type        string   `json:"type"`
 	LoginType   string   `json:"loginType"`
+	UserId      string   `json:"userId"`
 	Account     string   `json:"account,omitempty"`
 	Roles       []string `json:"roles"`
 	Authorities []string `json:"authorities"`
+	DidList     []string `json:"didList"`
 }
 
 func (c AuthClaims) Valid() error {
@@ -176,6 +178,56 @@ func GetManageTokenData(tokenString string, jwtPublicKeyBytes []byte) (authClaim
 	if !ok || !jwtToken.Valid {
 		err = fmt.Errorf("jwt token invalid ")
 		return
+	}
+	authClaim = claim
+	return
+}
+
+func GetCustomerTokenData(tokenString string, jwtPublicKeyBytes, didPublicKeyBytes []byte) (authClaim *AuthClaims, err error) {
+	if strings.HasPrefix(tokenString, JwtTokenPrefix) {
+		tokenString = tokenString[7:]
+	}
+	// parse rsa public key
+	parsedKey, parsePublicKeyErr := jwt.ParseRSAPublicKeyFromPEM(jwtPublicKeyBytes)
+	if parsePublicKeyErr != nil {
+		err = fmt.Errorf("parse jwt public key fail,%s ", parsePublicKeyErr.Error())
+		return
+	}
+	// parse Claim
+	jwtToken, parseClaimErr := jwt.ParseWithClaims(tokenString, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return parsedKey, nil
+	})
+	if parseClaimErr != nil {
+		err = fmt.Errorf("parse jwt claim fail,%s ", parseClaimErr.Error())
+		return
+	}
+	claim, ok := jwtToken.Claims.(*AuthClaims)
+	if !ok || !jwtToken.Valid {
+		err = fmt.Errorf("jwt token invalid ")
+		return
+	}
+	jwtContent, base64DecodeErr := base64.StdEncoding.DecodeString(claim.Account)
+	if base64DecodeErr != nil {
+		err = fmt.Errorf("base64 decode public key fail,%s ", base64DecodeErr.Error())
+		return
+	}
+	didContent, decryptDidErr := RSADecryptByPublic(jwtContent, string(didPublicKeyBytes))
+	if decryptDidErr != nil {
+		err = fmt.Errorf("decode did by public key fail,%s ", decryptDidErr.Error())
+		return
+	}
+	var didList []string
+	err = json.Unmarshal(didContent, &didList)
+	if err != nil {
+		err = fmt.Errorf("json unmarshal jwt decode content fail:%s ", err.Error())
+		return
+	}
+	claim.DidList = []string{}
+	for _, v := range didList {
+		if strings.HasPrefix(v, "nonce") {
+			continue
+		}
+		claim.DidList = append(claim.DidList, v)
 	}
 	authClaim = claim
 	return
