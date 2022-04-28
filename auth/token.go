@@ -130,16 +130,25 @@ func VerifyManageToken(tokenString string, jwtPublicKeyBytes []byte) (roles []st
 }
 
 type AuthClaims struct {
-	Subject     string   `json:"sub"`
-	IssuedAt    int64    `json:"iat"`
-	ExpiresAt   int64    `json:"exp"`
+	Subject     string    `json:"sub"`
+	IssuedAt    int64     `json:"iat"`
+	ExpiresAt   int64     `json:"exp"`
+	Type        string    `json:"type"`
+	LoginType   string    `json:"loginType"`
+	UserId      string    `json:"userId"`
+	Account     string    `json:"account,omitempty"`
+	Roles       []string  `json:"roles"`
+	Authorities []string  `json:"authorities"`
+	DidList     []string  `json:"didList"`
+	Auth        []AggAuth `json:"auth"`
+}
+
+type AggAuth struct {
 	Type        string   `json:"type"`
-	LoginType   string   `json:"loginType"`
-	UserId      string   `json:"userId"`
-	Account     string   `json:"account,omitempty"`
-	Roles       []string `json:"roles"`
+	RoleName    string   `json:"roleName"`
+	SceneId     string   `json:"sceneId"`
+	OrgAccounts []string `json:"orgAccounts"`
 	Authorities []string `json:"authorities"`
-	DidList     []string `json:"didList"`
 }
 
 func (c AuthClaims) Valid() error {
