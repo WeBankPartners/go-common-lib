@@ -19,6 +19,7 @@ type AuthDidClaims struct {
 	ExpiresAt int64  `json:"exp"`
 	Type      string `json:"type"`
 	LoginType string `json:"loginType"`
+	UserId    string `json:"userId"`
 	Account   string `json:"account,omitempty"`
 }
 
