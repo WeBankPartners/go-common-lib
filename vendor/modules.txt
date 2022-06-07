@@ -24,10 +24,9 @@ github.com/go-playground/validator/v10
 # github.com/golang-jwt/jwt v3.2.2+incompatible
 ## explicit
 github.com/golang-jwt/jwt
-# github.com/golang/protobuf v1.3.3
+# github.com/golang/protobuf v1.4.3
 github.com/golang/protobuf/proto
-# github.com/google/uuid v1.1.1
-## explicit
+# github.com/google/uuid v1.1.4
 github.com/google/uuid
 # github.com/json-iterator/go v1.1.10
 github.com/json-iterator/go
@@ -35,7 +34,7 @@ github.com/json-iterator/go
 github.com/klauspost/compress/s2
 # github.com/klauspost/cpuid v1.3.1
 github.com/klauspost/cpuid
-# github.com/leodido/go-urn v1.2.0
+# github.com/leodido/go-urn v1.2.1
 github.com/leodido/go-urn
 # github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
@@ -69,6 +68,9 @@ github.com/rs/xid
 github.com/satori/go.uuid
 # github.com/sirupsen/logrus v1.8.1
 github.com/sirupsen/logrus
+# github.com/topfreegames/pitaya/v2 v2.0.4
+## explicit
+github.com/topfreegames/pitaya/v2/logger/interfaces
 # github.com/ugorji/go/codec v1.1.7
 github.com/ugorji/go/codec
 # go.uber.org/atomic v1.7.0
@@ -83,15 +85,15 @@ go.uber.org/zap/internal/bufferpool
 go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
-# golang.org/x/crypto v0.0.0-20201216223049-8b5274cf687f
+# golang.org/x/crypto v0.0.0-20210314154223-e6e6c4f2bb5b
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/sha3
-# golang.org/x/net v0.0.0-20200707034311-ab3426394381
+# golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 golang.org/x/net/http/httpguts
 golang.org/x/net/idna
 golang.org/x/net/publicsuffix
-# golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae
+# golang.org/x/sys v0.0.0-20210309074719-68d13333faf2
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
@@ -101,10 +103,36 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# google.golang.org/protobuf v1.25.1-0.20200805231151-a709e31e5d12
+google.golang.org/protobuf/encoding/prototext
+google.golang.org/protobuf/encoding/protowire
+google.golang.org/protobuf/internal/descfmt
+google.golang.org/protobuf/internal/descopts
+google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/encoding/defval
+google.golang.org/protobuf/internal/encoding/messageset
+google.golang.org/protobuf/internal/encoding/tag
+google.golang.org/protobuf/internal/encoding/text
+google.golang.org/protobuf/internal/errors
+google.golang.org/protobuf/internal/filedesc
+google.golang.org/protobuf/internal/filetype
+google.golang.org/protobuf/internal/flags
+google.golang.org/protobuf/internal/genid
+google.golang.org/protobuf/internal/impl
+google.golang.org/protobuf/internal/order
+google.golang.org/protobuf/internal/pragma
+google.golang.org/protobuf/internal/set
+google.golang.org/protobuf/internal/strs
+google.golang.org/protobuf/internal/version
+google.golang.org/protobuf/proto
+google.golang.org/protobuf/reflect/protoreflect
+google.golang.org/protobuf/reflect/protoregistry
+google.golang.org/protobuf/runtime/protoiface
+google.golang.org/protobuf/runtime/protoimpl
 # gopkg.in/ini.v1 v1.57.0
 gopkg.in/ini.v1
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 ## explicit
 gopkg.in/natefinch/lumberjack.v2
-# gopkg.in/yaml.v2 v2.2.8
+# gopkg.in/yaml.v2 v2.3.0
 gopkg.in/yaml.v2
