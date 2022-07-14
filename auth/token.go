@@ -131,17 +131,28 @@ func VerifyManageToken(tokenString string, jwtPublicKeyBytes []byte) (roles []st
 }
 
 type AuthClaims struct {
-	Subject     string    `json:"sub"`
-	IssuedAt    int64     `json:"iat"`
-	ExpiresAt   int64     `json:"exp"`
-	Type        string    `json:"type"`
-	LoginType   string    `json:"loginType"`
-	UserId      string    `json:"userId"`
-	Account     string    `json:"account,omitempty"`
-	Roles       []string  `json:"roles"`
-	Authorities []string  `json:"authorities"`
-	DidList     []string  `json:"didList"`
-	Auth        []AggAuth `json:"auth"`
+	Subject       string         `json:"sub"`
+	IssuedAt      int64          `json:"iat"`
+	ExpiresAt     int64          `json:"exp"`
+	Type          string         `json:"type"`
+	LoginType     string         `json:"loginType"`
+	UserId        string         `json:"userId"`
+	Account       string         `json:"account,omitempty"`
+	Roles         []string       `json:"roles"`
+	Authorities   []string       `json:"authorities"`
+	DidList       []string       `json:"didList"`
+	Auth          []AggAuth      `json:"auth"`
+	GrantedAssets []GrantedAsset `json:"grantedAssets"`
+}
+
+type GrantedAsset struct {
+	OwnerDid string  `json:"ownerDid"`
+	Assets   []Asset `json:"assets"`
+}
+
+type Asset struct {
+	ContractAddress string `json:"contractAddress"`
+	Merits          string `json:"merits"`
 }
 
 type AggAuth struct {
