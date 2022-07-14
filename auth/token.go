@@ -131,28 +131,29 @@ func VerifyManageToken(tokenString string, jwtPublicKeyBytes []byte) (roles []st
 }
 
 type AuthClaims struct {
-	Subject       string         `json:"sub"`
-	IssuedAt      int64          `json:"iat"`
-	ExpiresAt     int64          `json:"exp"`
-	Type          string         `json:"type"`
-	LoginType     string         `json:"loginType"`
-	UserId        string         `json:"userId"`
-	Account       string         `json:"account,omitempty"`
-	Roles         []string       `json:"roles"`
-	Authorities   []string       `json:"authorities"`
-	DidList       []string       `json:"didList"`
-	Auth          []AggAuth      `json:"auth"`
-	GrantedAssets []GrantedAsset `json:"grantedAssets"`
+	Subject            string              `json:"sub"`
+	IssuedAt           int64               `json:"iat"`
+	ExpiresAt          int64               `json:"exp"`
+	Type               string              `json:"type"`
+	LoginType          string              `json:"loginType"`
+	UserId             string              `json:"userId"`
+	Account            string              `json:"account,omitempty"`
+	Roles              []string            `json:"roles"`
+	Authorities        []string            `json:"authorities"`
+	DidList            []string            `json:"didList"`
+	Auth               []AggAuth           `json:"auth"`
+	GrantedPermissions []GrantedPermission `json:"grantedPermissions"`
 }
 
-type GrantedAsset struct {
-	OwnerDid string  `json:"ownerDid"`
-	Assets   []Asset `json:"assets"`
+type GrantedPermission struct {
+	ContractAddress string  `json:"contractAddress"`
+	FunctionName    string  `json:"functionName"`
+	Params          []Param `json:"params"`
 }
 
-type Asset struct {
-	ContractAddress string `json:"contractAddress"`
-	Merits          string `json:"merits"`
+type Param struct {
+	Name   string   `json:"name"`
+	Values []string `json:"values"`
 }
 
 type AggAuth struct {
