@@ -74,6 +74,24 @@ func VerifySourceWithGin(c *gin.Context, pubKeyMap map[string]string) (appId str
 	return
 }
 
+func VerifySourceWithGinPublicKey(c *gin.Context, publicKeyBytes []byte) (err error) {
+	httpSourceAuth := HttpSourceAuth{SourceAuth: c.GetHeader(SourceAuthHeaderName), AppId: c.GetHeader(AppIdHeaderName), RequestURI: c.Request.RequestURI}
+	var bodyBytes []byte
+	if c.Request.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+		c.Request.Body.Close()
+		c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	}
+	httpSourceAuth.RequestBodyString = string(bodyBytes)
+	httpSourceAuth.LegalSourcePubKeyMap = map[string]string{httpSourceAuth.AppId: string(publicKeyBytes)}
+	err = httpSourceAuth.validateParam()
+	if err != nil {
+		return
+	}
+	err = httpSourceAuth.auth()
+	return
+}
+
 func VerifySourceWithHttp(httpRequest *http.Request, pubKeyMap map[string]string) (appId string, err error) {
 	httpSourceAuth := HttpSourceAuth{SourceAuth: httpRequest.Header.Get(SourceAuthHeaderName), AppId: httpRequest.Header.Get(AppIdHeaderName), RequestURI: httpRequest.URL.RequestURI()}
 	var bodyBytes []byte
