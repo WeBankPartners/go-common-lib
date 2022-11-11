@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/clientv3/namespace"
+	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/clientv3/namespace"
 )
 
 type watchCallBack func(op string, key string, value []byte, preValue []byte)
