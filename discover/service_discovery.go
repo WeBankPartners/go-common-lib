@@ -158,7 +158,11 @@ func (ds *DiscoveryServer) syncPrivateKeys() (err error) {
 	}
 	for i, v := range values {
 		_, privateKeyName := splitEtcdPath(keys[i])
-		ds.certsPrivateMap.Store(privateKeyName, v)
+		if decodeBytes, decodeErr := base64.StdEncoding.DecodeString(string(v)); decodeErr == nil {
+			ds.certsPrivateMap.Store(privateKeyName, decodeBytes)
+		} else {
+			ds.certsPrivateMap.Store(privateKeyName, v)
+		}
 	}
 	return
 }
@@ -227,7 +231,11 @@ func (ds *DiscoveryServer) watchPrivateKeys() {
 		switch op {
 		case "put":
 			_, privateKeyName := splitEtcdPath(key)
-			ds.certsPrivateMap.Store(privateKeyName, value)
+			if decodeBytes, decodeErr := base64.StdEncoding.DecodeString(string(value)); decodeErr == nil {
+				ds.certsPrivateMap.Store(privateKeyName, decodeBytes)
+			} else {
+				ds.certsPrivateMap.Store(privateKeyName, value)
+			}
 		case "delete":
 			_, privateKeyName := splitEtcdPath(key)
 			ds.certsPrivateMap.Delete(privateKeyName)
