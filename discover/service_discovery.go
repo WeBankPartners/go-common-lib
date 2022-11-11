@@ -227,7 +227,7 @@ func (ds *DiscoveryServer) watchServers() {
 
 func (ds *DiscoveryServer) watchPrivateKeys() {
 	ds.etcdStorage.Watch(fmt.Sprintf("/certs/private/%s", ds.self.Type), func(op string, key string, value []byte, preValue []byte) {
-		log.Printf("watch private keys,op:%s key:%s value:%s \n", op, key, string(value))
+		log.Printf("watch private keys,op:%s key:%s valueLen:%d \n", op, key, len(value))
 		switch op {
 		case "put":
 			_, privateKeyName := splitEtcdPath(key)
