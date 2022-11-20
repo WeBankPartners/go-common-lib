@@ -47,6 +47,9 @@ func RSADecryptByPublic(encryptData, publicKeyContent []byte) ([]byte, error) {
 	}
 
 	block, _ := pem.Decode(publicKeyContent)
+	if block == nil {
+		return nil, fmt.Errorf("public key illegal, pem decode fail")
+	}
 	publicKeyInterface, parsePubErr := x509.ParsePKIXPublicKey(block.Bytes)
 	if parsePubErr != nil {
 		return nil, fmt.Errorf("x509 parse public key error:%s ", parsePubErr.Error())
