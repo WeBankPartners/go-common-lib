@@ -109,7 +109,7 @@ func RegisterServer(param *RegisterParam) (ds *DiscoveryServer, err error) {
 		return
 	}
 	// init servers and certs data
-	if err = ds.syncServers(); err != nil {
+	if err = ds.SyncServers(); err != nil {
 		return
 	}
 	if err = ds.syncPrivateKeys(); err != nil {
@@ -122,10 +122,15 @@ func RegisterServer(param *RegisterParam) (ds *DiscoveryServer, err error) {
 	ds.watchServers()
 	ds.watchPrivateKeys()
 	ds.watchPublicKeys()
+	go func() {
+		time.Sleep(5 * time.Second)
+		ds.SyncServers()
+	}()
 	return
 }
 
-func (ds *DiscoveryServer) syncServers() (err error) {
+func (ds *DiscoveryServer) SyncServers() (err error) {
+	log.Println("start sync discovery servers")
 	keys, values, getErr := ds.etcdStorage.GetAll("/servers")
 	if getErr != nil {
 		err = fmt.Errorf("get etcd servers data fail,%s", getErr.Error())
