@@ -265,6 +265,7 @@ func (e *EtcdKvStorage) GetAll(prefix string) ([]string, [][]byte, error) {
 }
 
 func (e *EtcdKvStorage) watchEtcdChanges(prefix string) {
+	log.Printf("start watch etcd changes,prefix:%s \n", prefix)
 	w := e.cli.Watch(context.Background(), prefix, clientv3.WithPrefix(), clientv3.WithPrevKV())
 	failedWatchAttempts := 0
 	go func(chn clientv3.WatchChan) {
@@ -280,10 +281,7 @@ func (e *EtcdKvStorage) watchEtcdChanges(prefix string) {
 					failedWatchAttempts++
 					time.Sleep(1000 * time.Millisecond)
 					if failedWatchAttempts > 10 {
-						if err := e.Init(); err != nil {
-							failedWatchAttempts = 0
-							continue
-						}
+						log.Printf("[kv storage] etcd watcher died, retrying to watch,prefix:%s \n", prefix)
 						chn = e.cli.Watch(context.Background(), prefix, clientv3.WithPrefix())
 						failedWatchAttempts = 0
 					}
