@@ -49,6 +49,9 @@ type EtcdKvStorage struct {
 	etcdPasswd      string
 	revokeTimeout   time.Duration
 	shutdownDelay   time.Duration
+
+	sdServerKey  string
+	sdServerData []byte
 }
 
 func NewEtcdKvStorage(conf StorageConfig) *EtcdKvStorage {
@@ -96,6 +99,18 @@ func (e *EtcdKvStorage) Init() error {
 		}
 	}
 	return nil
+}
+
+func (e *EtcdKvStorage) SetSdServer(key string, data []byte) (err error) {
+	if err = e.Set(key, data); err != nil {
+		err = fmt.Errorf("set etcd servers storage data fail,%s", err.Error())
+		return
+	}
+	if e.sdServerKey == "" {
+		e.sdServerKey = key
+		e.sdServerData = data
+	}
+	return
 }
 
 // revoke prevents Pitaya from crashing when etcd is not available
@@ -284,6 +299,11 @@ func (e *EtcdKvStorage) watchEtcdChanges(prefix string) {
 						log.Printf("[kv storage] etcd watcher died, retrying to watch,prefix:%s \n", prefix)
 						chn = e.cli.Watch(context.Background(), prefix, clientv3.WithPrefix())
 						failedWatchAttempts = 0
+						if setSDErr := e.SetSdServer(e.sdServerKey, e.sdServerData); setSDErr != nil {
+							log.Printf("[kv storage] retry to set sd sever fail,%s \n", setSDErr.Error())
+						} else {
+							log.Printf("[kv storage] retry to set sd server %s done \n", e.sdServerKey)
+						}
 					}
 					continue
 				}

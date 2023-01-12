@@ -104,8 +104,8 @@ func RegisterServer(param *RegisterParam) (ds *DiscoveryServer, err error) {
 	ds.self.Hostname, _ = os.Hostname()
 	dataBytes, _ := json.Marshal(ds.self)
 	// register to etcd discovery
-	if err = ds.etcdStorage.Set(fmt.Sprintf("/servers/%s/%s", param.ServerType, ds.self.Id), dataBytes); err != nil {
-		err = fmt.Errorf("set etcd servers storage data fail,%s", err.Error())
+	storageKey := fmt.Sprintf("/servers/%s/%s", param.ServerType, ds.self.Id)
+	if err = ds.etcdStorage.SetSdServer(storageKey, dataBytes); err != nil {
 		return
 	}
 	// init servers and certs data
