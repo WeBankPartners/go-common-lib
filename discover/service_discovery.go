@@ -19,6 +19,7 @@ import (
 type RegisterParam struct {
 	ServerType    string    `json:"serverType"`    // 必传
 	EtcdPrefix    string    `json:"etcdPrefix"`    // 必传
+	GrayEnv       string    `json:"grayEnv"`       // 可选，灰度环境
 	EtcdEndpoints string    `json:"etcdEndpoints"` // 必传
 	EtcdUser      string    `json:"etcdUser"`      // 启用了认证时传
 	EtcdPassword  string    `json:"etcdPassword"`  // 启用了认证时传
@@ -77,6 +78,7 @@ func RegisterServer(param *RegisterParam) (ds *DiscoveryServer, err error) {
 	newDs.etcdStorage = NewEtcdKvStorage(StorageConfig{
 		Endpoints:   strings.Split(param.EtcdEndpoints, ","),
 		Prefix:      param.EtcdPrefix,
+		GrayEnv:     param.GrayEnv,
 		UserName:    param.EtcdUser,
 		Password:    param.EtcdPassword,
 		DialTimeout: 5 * time.Second,
@@ -104,7 +106,7 @@ func RegisterServer(param *RegisterParam) (ds *DiscoveryServer, err error) {
 	ds.self.Hostname, _ = os.Hostname()
 	dataBytes, _ := json.Marshal(ds.self)
 	// register to etcd discovery
-	storageKey := fmt.Sprintf("/servers/%s/%s", param.ServerType, ds.self.Id)
+	storageKey := fmt.Sprintf("%s/%s/%s", ds.getServersKey(), param.ServerType, ds.self.Id)
 	if err = ds.etcdStorage.SetSdServer(storageKey, dataBytes); err != nil {
 		return
 	}
@@ -129,9 +131,17 @@ func RegisterServer(param *RegisterParam) (ds *DiscoveryServer, err error) {
 	return
 }
 
+func (ds *DiscoveryServer) getServersKey() string {
+	key := "/servers"
+	if ds.etcdStorage.grayEnv != "" {
+		key = fmt.Sprintf("/%s%s", ds.etcdStorage.grayEnv, key)
+	}
+	return key
+}
+
 func (ds *DiscoveryServer) SyncServers() (err error) {
 	log.Println("start sync discovery servers")
-	keys, values, getErr := ds.etcdStorage.GetAll("/servers")
+	keys, values, getErr := ds.etcdStorage.GetAll(ds.getServersKey())
 	if getErr != nil {
 		err = fmt.Errorf("get etcd servers data fail,%s", getErr.Error())
 		return
@@ -195,7 +205,7 @@ func (ds *DiscoveryServer) syncPublicKeys() (err error) {
 }
 
 func (ds *DiscoveryServer) watchServers() {
-	ds.etcdStorage.Watch("/servers", func(op string, key string, value []byte, preValue []byte) {
+	ds.etcdStorage.Watch(ds.getServersKey(), func(op string, key string, value []byte, preValue []byte) {
 		log.Printf("watch servers,op:%s key:%s value:%s \n", op, key, string(value))
 		switch op {
 		case "put":

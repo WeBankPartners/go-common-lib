@@ -19,6 +19,7 @@ type StorageConfig struct {
 	LeaseTTL    time.Duration
 	UserName    string
 	Password    string
+	GrayEnv     string
 }
 
 type Storage interface {
@@ -39,6 +40,7 @@ type EtcdKvStorage struct {
 	cli             *clientv3.Client
 	etcdEndpoints   []string
 	etcdPrefix      string
+	grayEnv         string
 	etcdDialTimeout time.Duration
 	leaseTTL        time.Duration
 	leaseID         clientv3.LeaseID
@@ -58,6 +60,7 @@ func NewEtcdKvStorage(conf StorageConfig) *EtcdKvStorage {
 	return &EtcdKvStorage{
 		etcdEndpoints:   conf.Endpoints,
 		etcdPrefix:      conf.Prefix,
+		grayEnv:         conf.GrayEnv,
 		etcdDialTimeout: conf.DialTimeout,
 		leaseTTL:        conf.LeaseTTL,
 		stopChan:        make(chan struct{}),
