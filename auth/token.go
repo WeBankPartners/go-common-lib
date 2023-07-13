@@ -157,13 +157,14 @@ type Param struct {
 }
 
 type AggAuth struct {
-	Type             string   `json:"type"`
-	RoleName         string   `json:"roleName"`
-	SceneId          string   `json:"sceneId"`
-	OrgAccounts      []string `json:"orgAccounts"`
-	Authorities      []string `json:"authorities"`
-	ProductCode      string   `json:"productCode"`
-	ProductTenancyId string   `json:"productTenancyId"`
+	Type               string   `json:"type"`
+	RoleName           string   `json:"roleName"`
+	SceneId            string   `json:"sceneId"`
+	OrgAccounts        []string `json:"orgAccounts"`
+	Authorities        []string `json:"authorities"`
+	ProductCode        string   `json:"productCode"`
+	ProductTenancyCode string   `json:"productTenancyCode"`
+	ProductTenancyId   string   `json:"productTenancyId"`
 }
 
 func (c AuthClaims) Valid() error {
