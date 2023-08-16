@@ -143,6 +143,8 @@ type AuthClaims struct {
 	DidList            []string            `json:"didList"`
 	Auth               []AggAuth           `json:"auth"`
 	GrantedPermissions []GrantedPermission `json:"grantedPermissions"`
+	AdminType          string              `json:"adminType"`
+	UserName           string              `json:"userName"`
 }
 
 type GrantedPermission struct {
