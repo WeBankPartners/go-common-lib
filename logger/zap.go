@@ -1,11 +1,14 @@
 package logger
 
 import (
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/petermattis/goid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"strings"
-	"time"
 )
 
 var levelStringList = []string{"debug", "info", "warn", "error", "fatal"}
@@ -63,7 +66,7 @@ func InitArchiveZapLogger(config LogConfig) (zapLogger *zap.Logger) {
 			if len(trimPath) > 40 {
 				trimPath = trimPath[len(trimPath)-40:]
 			}
-			enc.AppendString("[] [" + trimPath + "]")
+			enc.AppendString("[" + fmt.Sprintf("goid-%d", goid.Get()) + "]" + "[" + trimPath + "]")
 		}
 		zCore := zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), zapcore.NewMultiWriteSyncer(zapcore.AddSync(&hook)), zapLevel)
 		zapLogger = zap.New(zCore, zap.AddCaller(), zap.Development())
