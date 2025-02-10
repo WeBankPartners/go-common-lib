@@ -115,7 +115,7 @@ func (e *customEncoder) EncodeEntry(entry zapcore.Entry,
 			fmt.Fprintf(line, "%q:%q,", field.Key, field.Interface)
 		default:
 			appendLeftBrackets()
-			fmt.Fprintf(line, "%q:%v,", field.Key, field.Interface)
+			fmt.Fprintf(line, "%q:%#v,", field.Key, field.Interface)
 		}
 	}
 	if hasFields {
